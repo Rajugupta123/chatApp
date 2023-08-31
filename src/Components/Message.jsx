@@ -16,4 +16,4 @@ const Message = ({text,uri,user="other"}) => {
   )
 }
 
-export default Message
+export default Message      

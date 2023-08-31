@@ -1,12 +1,40 @@
-import {Box,Button,Container,HStack,Input,VStack} from "@chakra-ui/react"
+import {Box,Button,Center,Container,HStack,Input,VStack} from "@chakra-ui/react"
 import Message from "./Components/Message"
+import {onAuthStateChanged,getAuth,GoogleAuthProvider,signInWithPopup,signOut} from "firebase/auth"
+import { app } from "./firebase";
+import { useEffect, useState } from "react";
+
+const auth = getAuth(app);
+
+const loginHandler =()=>{
+    const provider = new GoogleAuthProvider();
+
+    signInWithPopup(auth,provider)
+}
+
+const logoutHandler = ()=> signOut(auth)
 
 const App = () => {
+
+  const[user,setUser] = useState(false);
+  
+  useEffect(()=>{
+    const unsubscribe = onAuthStateChanged(auth,(data)=>{
+        setUser(data);
+    })
+    return ()=>{
+        unsubscribe();
+    }
+
+  },[])
+
   return (
     <Box bg={"red.50"}>
+        {
+            user?(
         <Container h={"100vh"} bg={"#fff"} >
             <VStack h="full" paddingY={2} >
-                <Button colorScheme={"red"} w={"full"} >
+                <Button onClick={logoutHandler} colorScheme={"red"} w={"full"} >
                     Logout
                 </Button>
 
@@ -36,6 +64,10 @@ const App = () => {
 
             </VStack>
         </Container>
+            ):<VStack justifyContent={"center"}  h={"100vh"}>
+                <Button onClick={loginHandler} color={"#fff"} colorScheme={"purple"}>Sign in With Google</Button>
+            </VStack>
+        }
     </Box>
   )
 }
